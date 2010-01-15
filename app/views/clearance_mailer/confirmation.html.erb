@@ -1,5 +1,3 @@
-
-<%= new_user_confirmation_url(
-      :user_id => @user,
-      :token   => @user.confirmation_token,
-      :encode  => false) %>
+<%= new_user_confirmation_url :user_id => @user,
+                              :token => @user.perishable_token,
+                              :encode => false %>

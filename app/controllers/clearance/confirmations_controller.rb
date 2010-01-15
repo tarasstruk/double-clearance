@@ -8,35 +8,33 @@ class Clearance::ConfirmationsController < ApplicationController
 
   filter_parameter_logging :token
 
+
   def new
-    create
+    user = User.find_by_id_and_perishable_token!(params[:user_id], params[:token])
+    user.confirm_email!
+    UserSession.create(user, true)
+    flash_success_after_create
+    redirect_to(url_after_create)
   end
 
   def create
-    @user = ::User.find_by_id_and_confirmation_token(
-                   params[:user_id], params[:token])
-    @user.confirm_email!
-
-    sign_in(@user)
-    flash_success_after_create
-    redirect_to(url_after_create)
+    new
   end
 
   private
 
   def redirect_signed_in_confirmed_user
-    user = ::User.find_by_id(params[:user_id])
-    if user && user.email_confirmed? && current_user == user
-      flash_success_after_create
-      redirect_to(url_after_create)
+    if current_user.try(:confirmed?)
+      flash[:notice] = "Confirmed email and signed in."
+      redirect_to root_url
     end
   end
 
   def redirect_signed_out_confirmed_user
-    user = ::User.find_by_id(params[:user_id])
-    if user && user.email_confirmed? && signed_out?
-      flash_already_confirmed
-      redirect_to(url_already_confirmed)
+    user = User.find_by_id(params[:user_id])
+    if user && user.confirmed? && !signed_in?
+      flash[:notice] = "Already confirmed email. Please sign in."
+      redirect_to root_url
     end
   end
 
@@ -47,7 +45,7 @@ class Clearance::ConfirmationsController < ApplicationController
   end
 
   def forbid_non_existent_user
-    unless ::User.find_by_id_and_confirmation_token(
+    unless ::User.find_by_id_and_perishable_token(
                   params[:user_id], params[:token])
       raise ActionController::Forbidden, "non-existent user"
     end

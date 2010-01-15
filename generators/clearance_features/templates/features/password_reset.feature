@@ -16,18 +16,21 @@ Feature: Password reset
 
     Scenario: User is signed up updated his password and types wrong confirmation
       Given I signed up with "email@person.com/password"
-      When I follow the password reset link sent to "email@person.com"
+      And I reset my inbox
+      When I request password reset link to be sent to "email@person.com"
+      And I follow the password reset link sent to "email@person.com"
       And I update my password with "newpassword/wrongconfirmation"
       Then I should see error messages
       And I should be signed out
 
     Scenario: User is signed up and updates his password
       Given I signed up with "email@person.com/password"
-      When I follow the password reset link sent to "email@person.com"
+      And I reset my inbox
+      When I request password reset link to be sent to "email@person.com"
+      And I follow the password reset link sent to "email@person.com"
       And I update my password with "newpassword/newpassword"
       Then I should be signed in
       When I sign out
       Then I should be signed out
       And I sign in as "email@person.com/newpassword"
       Then I should be signed in
-

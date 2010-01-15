@@ -1,6 +1,7 @@
 <h2>Sign in</h2>
 
-<% form_for :session, :url => session_path do |form| %>
+<% form_for @user_session, :url => session_path do |form| %>
+  <%= form.error_messages %>
   <div class="text_field">
     <%= form.label :email %>
     <%= form.text_field :email %>

@@ -27,7 +27,7 @@ class PasswordsControllerTest < ActionController::TestCase
         end
 
         should "generate a token for the change your password email" do
-          assert_not_nil @user.reload.confirmation_token
+          assert_not_nil @user.reload.perishable_token
         end
 
         should "send the change your password email" do
@@ -45,15 +45,15 @@ class PasswordsControllerTest < ActionController::TestCase
           email = "user1@example.com"
           assert ! ::User.exists?(['email = ?', email])
           ActionMailer::Base.deliveries.clear
-          assert_equal @user.confirmation_token,
-                       @user.reload.confirmation_token
+          assert_equal @user.perishable_token,
+                       @user.reload.perishable_token
 
           post :create, :password => { :email => email }
         end
 
         should "not generate a token for the change your password email" do
-          assert_equal @user.confirmation_token,
-                       @user.reload.confirmation_token
+          assert_equal @user.perishable_token,
+                       @user.reload.perishable_token
         end
 
         should "not send a password reminder email" do
@@ -72,13 +72,12 @@ class PasswordsControllerTest < ActionController::TestCase
   context "a signed up user and forgotten password" do
     setup do
       @user = Factory(:user)
-      @user.forgot_password!
     end
 
     context "on GET to #edit with correct id and token" do
       setup do
         get :edit, :user_id => @user.to_param,
-                   :token   => @user.confirmation_token
+                   :token   => @user.perishable_token
       end
 
       should "find the user" do
@@ -101,12 +100,11 @@ class PasswordsControllerTest < ActionController::TestCase
     context "on PUT to #update with matching password and password confirmation" do
       setup do
         new_password = "new_password"
-        @encrypted_new_password = @user.send(:encrypt, new_password)
-        assert_not_equal @encrypted_new_password, @user.encrypted_password
+        @old_password = @user.encrypted_password
 
         put(:update,
             :user_id  => @user,
-            :token    => @user.confirmation_token,
+            :token    => @user.perishable_token,
             :user     => {
               :password              => new_password,
               :password_confirmation => new_password
@@ -115,16 +113,7 @@ class PasswordsControllerTest < ActionController::TestCase
       end
 
       should "update password" do
-        assert_equal @encrypted_new_password,
-                     @user.encrypted_password
-      end
-
-      should "clear confirmation token" do
-        assert_nil @user.confirmation_token
-      end
-
-      should "set remember token" do
-        assert_not_nil @user.remember_token
+        assert_not_equal @old_password, @user.encrypted_password
       end
 
       should_set_the_flash_to(/signed in/i)
@@ -134,11 +123,11 @@ class PasswordsControllerTest < ActionController::TestCase
     context "on PUT to #update with password but blank password confirmation" do
       setup do
         new_password = "new_password"
-        @encrypted_new_password = @user.send(:encrypt, new_password)
+        @old_password = @user.encrypted_password
 
         put(:update,
             :user_id => @user.to_param,
-            :token   => @user.confirmation_token,
+            :token   => @user.perishable_token,
             :user    => {
               :password => new_password,
               :password_confirmation => ''
@@ -147,12 +136,7 @@ class PasswordsControllerTest < ActionController::TestCase
       end
 
       should "not update password" do
-        assert_not_equal @encrypted_new_password,
-                         @user.encrypted_password
-      end
-
-      should "not clear token" do
-        assert_not_nil @user.confirmation_token
+        assert_equal @old_password, @user.encrypted_password
       end
 
       should_not_be_signed_in

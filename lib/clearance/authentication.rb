@@ -22,13 +22,14 @@ module Clearance
       #
       # @return [User, nil]
       def current_user
-        @_current_user ||= user_from_cookie
+        @_current_user ||= UserSession.find.try(:user)
       end
 
       # Set the current user
       #
       # @param [User]
       def current_user=(user)
+        UserSession.create(user)
         @_current_user = user
       end
 
@@ -61,14 +62,7 @@ module Clearance
       # @example
       #   sign_in(@user)
       def sign_in(user)
-        if user
-          user.remember_me!
-          cookies[:remember_token] = {
-            :value   => user.remember_token,
-            :expires => 1.year.from_now.utc
-          }
-          current_user = user
-        end
+        UserSession.create(user, true) if user
       end
 
       # Sign user out of cookie.
@@ -76,8 +70,7 @@ module Clearance
       # @example
       #   sign_out
       def sign_out
-        cookies.delete(:remember_token)
-        current_user = nil
+        UserSession.find.destroy
       end
 
       # Store the current location and redirect to sign in.
@@ -91,12 +84,6 @@ module Clearance
       end
 
       protected
-
-      def user_from_cookie
-        if token = cookies[:remember_token]
-          ::User.find_by_remember_token(token)
-        end
-      end
 
       def sign_user_in(user)
         warn "[DEPRECATION] sign_user_in: unnecessary. use sign_in(user) instead."

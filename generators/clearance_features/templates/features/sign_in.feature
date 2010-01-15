@@ -12,10 +12,12 @@ Feature: Sign in
 
     Scenario: User is not confirmed
       Given I signed up with "email@person.com/password"
+      And I reset my inbox
       When I go to the sign in page
       And I sign in as "email@person.com/password"
-      Then I should see "User has not confirmed email"
+      Then I should see "Confirmation email will be resent"
       And I should be signed out
+      And a confirmation message should be sent to "email@person.com"
 
    Scenario: User enters wrong password
       Given I am signed up and confirmed as "email@person.com/password"
