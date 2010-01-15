@@ -61,8 +61,13 @@ rake db:migrate
 
 h2. If you aren't on Suspenders, you aren't done
 
-Define a HOST constant in your environment files.
-In config/environments/test.rb and config/environments/development.rb it can be:
+Define a HOST constant in your environment files.  In:
+
+* config/environments/test.rb
+* config/environments/development.rb
+* config/environments/cucumber.rb
+
+it can be:
 
 <pre>
 HOST = "localhost"
@@ -86,11 +91,11 @@ map.root :controller => 'home'
 Make sure flash messages are shown in your layout:
 
 <pre>
-&lt;div id="flash"&gt;
-  &lt;% flash.each do |key, value| -%&gt;
-    &lt;div id="flash_&lt;%= key %&gt;"&gt;&lt;%=h value %&gt;&lt;/div&gt;
-  &lt;% end -%&gt;
-&lt;/div&gt;
+<div id="flash">
+  <% flash.each do |key, value| -%>
+    <div id="flash_<%= key %>"><%=h value %></div>
+  <% end -%>
+</div>
 </pre>
 
 h2. Upgrading
