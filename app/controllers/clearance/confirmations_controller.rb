@@ -64,7 +64,7 @@ class Clearance::ConfirmationsController < ApplicationController
   end
 
   def url_after_create
-    root_url
+    '/'
   end
 
   def url_already_confirmed

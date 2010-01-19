@@ -96,7 +96,7 @@ class Clearance::PasswordsController < ApplicationController
   end
 
   def url_after_update
-    root_url
+    '/'
   end
 
   def url_no_such_user
