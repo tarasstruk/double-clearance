@@ -70,9 +70,10 @@ end
 
 Then /^a password reset message should be sent to "(.*)"$/ do |email|
   user = User.find_by_email(email)
+  assert !user.confirmation_token.blank?
   assert !ActionMailer::Base.deliveries.empty?
   assert ActionMailer::Base.deliveries.any? do |email|
-    email.to == user.email &&
+    email.to == [user.email] &&
     email.subject =~ /password/i &&
     email.body =~ /#{user.perishable_token}/
   end
