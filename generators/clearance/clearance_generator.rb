@@ -24,6 +24,9 @@ class ClearanceGenerator < Rails::Generator::Base
       end
 
 
+      m.insert_into "config/routes.rb",
+                    "Clearance::Routes.draw(map)"
+
       m.directory File.join("test", "factories")
       m.file "factories.rb", "test/factories/clearance.rb"
 
