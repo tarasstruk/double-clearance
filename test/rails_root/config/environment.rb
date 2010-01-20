@@ -12,6 +12,6 @@ Rails::Initializer.run do |config|
   config.gem "justinfrench-formtastic",
     :lib     => 'formtastic',
     :source  => 'http://gems.github.com'
-end
 
-DO_NOT_REPLY = "donotreply@example.com"
+  config.action_mailer.default_url_options = { :host => 'localhost:3000' }
+end
