@@ -88,7 +88,7 @@ class Clearance::PasswordsController < ApplicationController
   end
 
   def url_after_create
-    new_session_url
+    sign_in_url
   end
 
   def flash_success_after_update
