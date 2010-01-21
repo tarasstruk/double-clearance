@@ -1,2 +1,2 @@
 # FOR ERB TEMPLATES
-./script/generate clearance:views
+script/generate clearance:views
