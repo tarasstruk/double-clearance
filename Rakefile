@@ -63,9 +63,14 @@ namespace :generator do
     system "cd test/rails_root && ./script/generate clearance && rake db:migrate db:test:prepare"
   end
 
+  desc "Run the cucumber generator"
+  task :cucumber do
+    system "cd test/rails_root && ./script/generator cucumber"
+  end
+
   desc "Run the clearance features generator"
-  task :clearance_features do
-    system "cd test/rails_root && ./script/generate clearance_features"
+  task :clearance_features => :cucumber do
+    system "./script/generate clearance_features"
   end
 
   desc "Run the clearance views generator"

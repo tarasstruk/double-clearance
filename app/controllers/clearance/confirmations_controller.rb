@@ -10,9 +10,9 @@ class Clearance::ConfirmationsController < ApplicationController
 
 
   def new
-    user = User.find_by_id_and_perishable_token!(params[:user_id], params[:token])
+    user = ::User.find_by_id_and_perishable_token!(params[:user_id], params[:token])
     user.confirm_email!
-    UserSession.create(user, true)
+    ::UserSession.create(user, true)
     flash_success_after_create
     redirect_to(url_after_create)
   end
@@ -31,7 +31,7 @@ class Clearance::ConfirmationsController < ApplicationController
   end
 
   def redirect_signed_out_confirmed_user
-    user = User.find_by_id(params[:user_id])
+    user = ::User.find_by_id(params[:user_id])
     if user && user.confirmed? && !signed_in?
       flash[:notice] = "Already confirmed email. Please sign in."
       redirect_to root_url

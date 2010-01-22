@@ -22,14 +22,14 @@ module Clearance
       #
       # @return [User, nil]
       def current_user
-        @_current_user ||= UserSession.find.try(:user)
+        @_current_user ||= ::UserSession.find.try(:user)
       end
 
       # Set the current user
       #
       # @param [User]
       def current_user=(user)
-        UserSession.create(user)
+        ::UserSession.create(user)
         @_current_user = user
       end
 
@@ -62,7 +62,7 @@ module Clearance
       # @example
       #   sign_in(@user)
       def sign_in(user)
-        UserSession.create(user, true) if user
+        ::UserSession.create(user, true) if user
       end
 
       # Sign user out of cookie.
@@ -70,7 +70,7 @@ module Clearance
       # @example
       #   sign_out
       def sign_out
-        UserSession.find.destroy
+        ::UserSession.find.destroy
       end
 
       # Store the current location and redirect to sign in.

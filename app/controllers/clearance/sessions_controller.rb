@@ -5,26 +5,28 @@ class Clearance::SessionsController < ApplicationController
   filter_parameter_logging :password
 
   def new
-    @user_session = UserSession.new
+    @user_session = ::UserSession.new
     render :template => 'sessions/new'
   end
 
   def create
-    @user_session = UserSession.new(params[:user_session])
-    if @user_session.save
-      flash_success_after_create
-      redirect_back_or url_after_create
-    elsif @user_session.errors.full_messages.include?("Your account is not confirmed")
-      flash_notice_after_create
-      redirect_to(new_session_url)
-    else
-      flash_failure_after_create
-      render :template => 'sessions/new', :status => :unauthorized
+    @user_session = ::UserSession.new(params[:user_session])
+    @user_session.save do |result|
+      if result
+        flash_success_after_create
+        redirect_back_or url_after_create
+      elsif @user_session.errors.full_messages.include?("Your account is not confirmed")
+        flash_notice_after_create
+        redirect_to(new_session_url)
+      else
+        flash_failure_after_create
+        render :template => 'sessions/new', :status => :unauthorized
+      end
     end
   end
 
   def destroy
-    UserSession.find.try(:destroy)
+    ::UserSession.find.try(:destroy)
     flash_success_after_destroy
     redirect_back_or url_after_destroy
   end
