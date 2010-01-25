@@ -100,12 +100,33 @@ Make sure flash messages are shown in your layout:
 
 h2. Upgrading
 
+This upgrade comes with a dependency on Authlogic, so be sure to add that to
+your environment.rb:
+
+<pre>
+config.gem 'authlogic', :version => '2.1.3'
+</pre>
+
 The database field confirmation_token has changed to perishable_token. You must
 add this migration if upgrading:
 
 <pre>
 rename_column :users, :confirmation_token, :perishable_token
 add_index :users, :perishable_token
+</pre>
+
+The sessions parameter has changed to user_session.  If you have customized
+sessions/new.html.erb be sure to modify it:
+
+<pre>
+<% form_for @user_session, :url => session_path do |form| %>
+<% end %>
+</pre>
+
+<pre>
+  def new
+    @user_session = UserSession.new
+  end
 </pre>
 
 h2. Cucumber Features
