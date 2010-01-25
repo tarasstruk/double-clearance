@@ -59,7 +59,7 @@ namespace :generator do
 
   desc "Run the clearance features generator"
   task :clearance_features => :cucumber do
-    system "./script/generate clearance_features"
+    system "./script/generate clearance_features -f"
   end
 
   desc "Run the clearance views generator"

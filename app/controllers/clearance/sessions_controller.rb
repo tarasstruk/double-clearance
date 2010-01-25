@@ -17,7 +17,7 @@ class Clearance::SessionsController < ApplicationController
         redirect_back_or url_after_create
       elsif @user_session.errors.full_messages.include?("Your account is not confirmed")
         flash_notice_after_create
-        redirect_to(new_session_url)
+        redirect_to(sign_in_url)
       else
         flash_failure_after_create
         render :template => 'sessions/new', :status => :unauthorized
