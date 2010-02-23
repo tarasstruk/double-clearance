@@ -62,7 +62,6 @@ module Clearance
       #   sign_in(@user)
       def sign_in(user)
         if user
-          user.remember_me!
           cookies[:remember_token] = {
             :value   => user.remember_token,
             :expires => 1.year.from_now.utc
@@ -76,6 +75,7 @@ module Clearance
       # @example
       #   sign_out
       def sign_out
+        current_user.reset_remember_token! if current_user
         cookies.delete(:remember_token)
         current_user = nil
       end

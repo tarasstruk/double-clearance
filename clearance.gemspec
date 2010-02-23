@@ -5,21 +5,21 @@
 
 Gem::Specification.new do |s|
   s.name = %q{clearance}
-  s.version = "0.8.5"
+  s.version = "0.8.7"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Dan Croak", "Mike Burns", "Jason Morrison", "Joe Ferris", "Eugene Bolshakov", "Nick Quaranto", "Josh Nichols", "Mike Breen", "Marcel G\303\266rner", "Bence Nagy", "Ben Mabey", "Eloy Duran", "Tim Pope", "Mihai Anca", "Mark Cornick", "Shay Arnett", "Jon Yurek", "Chad Pytel"]
-  s.date = %q{2010-01-20}
+  s.date = %q{2010-02-21}
   s.description = %q{Rails authentication with email & password.}
   s.email = %q{support@thoughtbot.com}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README.textile"
+     "README.md"
   ]
   s.files = [
-    "CHANGELOG.textile",
+    "CHANGELOG.md",
      "LICENSE",
-     "README.textile",
+     "README.md",
      "Rakefile",
      "VERSION",
      "app/controllers/clearance/confirmations_controller.rb",
@@ -51,7 +51,6 @@ Gem::Specification.new do |s|
      "generators/clearance_features/templates/features/sign_out.feature",
      "generators/clearance_features/templates/features/sign_up.feature",
      "generators/clearance_features/templates/features/step_definitions/clearance_steps.rb",
-     "generators/clearance_features/templates/features/step_definitions/factory_girl_steps.rb",
      "generators/clearance_features/templates/features/support/paths.rb",
      "generators/clearance_views/USAGE",
      "generators/clearance_views/clearance_views_generator.rb",
@@ -100,7 +99,7 @@ Gem::Specification.new do |s|
      "test/rails_root/config/initializers/requires.rb",
      "test/rails_root/config/initializers/time_formats.rb",
      "test/rails_root/config/routes.rb",
-     "test/rails_root/db/migrate/20100120045223_clearance_create_users.rb",
+     "test/rails_root/db/migrate/20100221200020_clearance_create_users.rb",
      "test/rails_root/features/step_definitions/clearance_steps.rb",
      "test/rails_root/features/step_definitions/factory_girl_steps.rb",
      "test/rails_root/features/step_definitions/web_steps.rb",

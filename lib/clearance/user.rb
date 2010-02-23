@@ -49,12 +49,12 @@ module Clearance
       # :password must be present, confirmed
       def self.included(model)
         model.class_eval do
-          validates_presence_of     :email
-          validates_uniqueness_of   :email, :case_sensitive => false
-          validates_format_of       :email, :with => %r{.+@.+\..+}
+          validates_presence_of     :email, :unless => :email_optional?
+          validates_uniqueness_of   :email, :case_sensitive => false, :allow_blank => true
+          validates_format_of       :email, :with => %r{.+@.+\..+}, :allow_blank => true
 
-          validates_presence_of     :password, :if => :password_required?
-          validates_confirmation_of :password, :if => :password_required?
+          validates_presence_of     :password, :unless => :password_optional?
+          validates_confirmation_of :password, :unless => :password_optional?
         end
       end
     end
@@ -65,11 +65,11 @@ module Clearance
       # salt, token, password encryption are handled before_save.
       def self.included(model)
         model.class_eval do
-          before_save :initialize_salt,
-                      :encrypt_password,
-                      :initialize_confirmation_token
-
-          after_create :send_confirmation_email, :unless => :email_confirmed?
+          before_save   :initialize_salt,
+                        :encrypt_password
+          before_create :generate_confirmation_token,
+                        :generate_remember_token
+          after_create  :send_confirmation_email, :unless => :email_confirmed?
         end
       end
     end
@@ -87,14 +87,18 @@ module Clearance
 
       # Set the remember token.
       #
-      # @example
-      #   user.remember_me!
-      #   cookies[:remember_token] = {
-      #     :value   => user.remember_token,
-      #     :expires => 1.year.from_now.utc
-      #   }
+      # @deprecated Use {#reset_remember_token!} instead
       def remember_me!
-        self.remember_token = encrypt("--#{Time.now.utc}--#{password}--#{id}--")
+        warn "[DEPRECATION] remember_me!: use reset_remember_token! instead"
+        reset_remember_token!
+      end
+
+      # Reset the remember token.
+      #
+      # @example
+      #   user.reset_remember_token!
+      def reset_remember_token!
+        generate_remember_token
         save(false)
       end
 
@@ -140,7 +144,7 @@ module Clearance
 
       def initialize_salt
         if new_record?
-          self.salt = generate_hash("--#{Time.now.utc}--#{password}--")
+          self.salt = generate_hash("--#{Time.now.utc}--#{password}--#{rand}--")
         end
       end
 
@@ -154,15 +158,31 @@ module Clearance
       end
 
       def generate_confirmation_token
-        self.confirmation_token = encrypt("--#{Time.now.utc}--#{password}--")
+        self.confirmation_token = encrypt("--#{Time.now.utc}--#{password}--#{rand}--")
       end
 
-      def initialize_confirmation_token
-        generate_confirmation_token if new_record?
+      def generate_remember_token
+        self.remember_token = encrypt("--#{Time.now.utc}--#{encrypted_password}--#{id}--#{rand}--")
+      end
+
+      # Always false. Override to allow other forms of authentication
+      # (username, facebook, etc).
+      # @return [Boolean] true if the email field be left blank for this user
+      def email_optional?
+        false
+      end
+
+      # True if the password has been set and the password is not being
+      # updated. Override to allow other forms of # authentication (username,
+      # facebook, etc).
+      # @return [Boolean] true if the password field can be left blank for this user
+      def password_optional?
+        encrypted_password.present? && password.blank?
       end
 
       def password_required?
-        encrypted_password.blank? || !password.blank?
+        # warn "[DEPRECATION] password_required?: use !password_optional? instead"
+        !password_optional?
       end
 
       def send_confirmation_email

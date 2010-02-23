@@ -25,22 +25,44 @@ class ClearanceGenerator < Rails::Generator::Base
       m.directory File.join("test", "factories")
       m.file "factories.rb", "test/factories/clearance.rb"
 
-      m.migration_template "migrations/#{migration_name}.rb",
+      m.migration_template "migrations/#{migration_source_name}.rb",
                            'db/migrate',
-                           :migration_file_name => "clearance_#{migration_name}"
+                           :migration_file_name => "clearance_#{migration_target_name}"
 
       m.readme "README"
     end
   end
 
+  def schema_version_constant
+    if upgrading_clearance_again?
+      "To#{schema_version.gsub('_', '')}"
+    end
+  end
+
   private
 
-  def migration_name
+  def migration_source_name
     if ActiveRecord::Base.connection.table_exists?(:users)
       'update_users'
     else
       'create_users'
     end
+  end
+
+  def migration_target_name
+    if upgrading_clearance_again?
+      "update_users_to_#{schema_version}"
+    else
+      'create_users'
+    end
+  end
+
+  def schema_version
+    IO.read(File.join(File.dirname(__FILE__), '..', '..', 'VERSION')).strip.gsub(/[^\d]/, '_')
+  end
+
+  def upgrading_clearance_again?
+    ActiveRecord::Base.connection.table_exists?(:users)
   end
 
 end
