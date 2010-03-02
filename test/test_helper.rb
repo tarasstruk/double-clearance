@@ -1,6 +1,5 @@
 ENV["RAILS_ENV"] = "test"
-require File.expand_path(File.dirname(__FILE__) +
-                         "/rails_root/config/environment")
+require File.expand_path('../rails_root/config/application', __FILE__)
 require 'test_help'
 
 $: << File.expand_path(File.dirname(__FILE__) + '/..')

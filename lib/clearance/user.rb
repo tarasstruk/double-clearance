@@ -16,7 +16,6 @@ module Clearance
     #
     # @see ClassMethods
     # @see InstanceMethods
-    # @see AttrAccessible
     # @see AttrAccessor
     # @see Validations
     # @see Callbacks
@@ -49,12 +48,17 @@ module Clearance
       # :password must be present, confirmed
       def self.included(model)
         model.class_eval do
-          validates_presence_of     :email, :unless => :email_optional?
-          validates_uniqueness_of   :email, :case_sensitive => false, :allow_blank => true
-          validates_format_of       :email, :with => %r{.+@.+\..+}, :allow_blank => true
+          validates :email,
+                    :presence       => true,
+                    :case_sensitive => false,
+                    :allow_blank    => true,
+                    :format         => %r{.+@.+\..+},
+                    :unless         => :email_optional?
 
-          validates_presence_of     :password, :unless => :password_optional?
-          validates_confirmation_of :password, :unless => :password_optional?
+          validates :password,
+                    :presence     => true,
+                    :confirmation => true,
+                    :unless       => :password_optional?
         end
       end
     end
@@ -143,7 +147,7 @@ module Clearance
       end
 
       def initialize_salt
-        if new_record?
+        if salt.blank?
           self.salt = generate_hash("--#{Time.now.utc}--#{password}--#{rand}--")
         end
       end
