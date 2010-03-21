@@ -13,11 +13,17 @@ module Clearance
                                  :signed_in?,   :signed_out?,
                                  :sign_in,      :sign_out,
                                  :authenticate, :deny_access
-
+                                 
+        controller.class_inheritable_accessor :user_model
       end
+      
+      def use_model(klass_name)
+        self.user_model = klass_name.to_s.camelize.constantize
+      end     
     end
 
-    module InstanceMethods
+    module InstanceMethods  
+      
       # User in the current cookie
       #
       # @return [User, nil]
@@ -94,7 +100,7 @@ module Clearance
 
       def user_from_cookie
         if token = cookies[:remember_token]
-          ::User.find_by_remember_token(token)
+          user_model.find_by_remember_token(token)
         end
       end
 

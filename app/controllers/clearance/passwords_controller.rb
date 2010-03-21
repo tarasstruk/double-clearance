@@ -1,4 +1,4 @@
-class Clearance::PasswordsController < ApplicationController
+class Clearance::PasswordsController < Clearance::AuthProxyController
   unloadable
 
   skip_before_filter :authenticate,        :only => [:new, :create, :edit, :update]

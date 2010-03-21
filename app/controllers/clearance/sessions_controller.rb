@@ -1,20 +1,37 @@
-class Clearance::SessionsController < ApplicationController
+class Clearance::SessionsController < Clearance::AuthProxyController
   unloadable
 
   skip_before_filter :authenticate, :only => [:new, :create, :destroy]
   protect_from_forgery :except => :create
   filter_parameter_logging :password
 
-  def new
-    render :template => 'sessions/new'
+  class_inheritable_accessor :user_model 
+
+  class << self
+    def use_model(klass_name)
+      self.user_model = klass_name.to_s.camelize.constantize
+    end
   end
 
+  def model_param_key
+    user_model.name.underscore
+  end  
+  
+  def template_directory
+    model_param_key.pluralize
+  end
+
+
+  def new
+    # render :template => 'sessions/new'
+  end
+  
   def create
-    @user = ::User.authenticate(params[:session][:email],
+    @user = user_model.authenticate(params[:session][:email],
                                 params[:session][:password])
     if @user.nil?
       flash_failure_after_create
-      render :template => 'sessions/new', :status => :unauthorized
+      render :action => :new, :status => :unauthorized
     else
       if @user.email_confirmed?
         sign_in(@user)
@@ -23,7 +40,7 @@ class Clearance::SessionsController < ApplicationController
       else
         ::ClearanceMailer.deliver_confirmation(@user)
         flash_notice_after_create
-        redirect_to(sign_in_url)
+        redirect_to :action => :new
       end
     end
   end

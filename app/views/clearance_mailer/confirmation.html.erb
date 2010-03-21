@@ -1,5 +1,15 @@
-
+<% if @user.kind_of?(User) %>
 <%= new_user_confirmation_url(
-      :user_id => @user,
+      :user_id => @user.id,
       :token   => @user.confirmation_token,
       :encode  => false) %>
+
+<% else %>
+
+<%= new_admin_user_confirmation_url(
+      :admin_user_id => @user.id,
+      :token   => @user.confirmation_token,
+      :encode  => false) %>
+
+
+<% end %>

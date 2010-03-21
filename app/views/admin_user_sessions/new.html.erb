@@ -1,0 +1,24 @@
+<h2>ADMIN Sign in</h2>
+
+<% form_for :session, :url => admin_user_session_path do |form| %>
+  <div class="text_field">
+    <%= form.label :email %>
+    <%= form.text_field :email %>
+  </div>
+  <div class="text_field">
+    <%= form.label :password %>
+    <%= form.password_field :password %>
+  </div>
+  <div class="submit_field">
+    <%= form.submit "Sign in", :disable_with => "Please wait..." %>
+  </div>
+<% end %>
+
+<ul>
+  <li>
+    <%= link_to "Sign up", admin_sign_up_path %>
+  </li>
+  <li>
+    <%# link_to "Forgot password?", admin_user_password_path %>
+  </li>
+</ul>

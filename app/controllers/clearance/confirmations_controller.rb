@@ -1,4 +1,4 @@
-class Clearance::ConfirmationsController < ApplicationController
+class Clearance::ConfirmationsController < Clearance::AuthProxyController
   unloadable
 
   skip_before_filter :authenticate,                  :only => [:new, :create]
@@ -9,13 +9,35 @@ class Clearance::ConfirmationsController < ApplicationController
 
   filter_parameter_logging :token
 
+
+  class_inheritable_accessor :user_model 
+
+  class << self
+    def use_model(klass_name)
+      self.user_model = klass_name.to_s.camelize.constantize
+    end
+  end
+
+  def model_param_key
+    user_model.name.underscore
+  end  
+  
+  def template_directory
+    model_param_key.pluralize
+  end
+
+  def user_id_param
+    params["#{model_param_key}_id"]
+  end
+
+
   def new
     create
   end
 
   def create
-    @user = ::User.find_by_id_and_confirmation_token(
-                   params[:user_id], params[:token])
+    @user = user_model.find_by_id_and_confirmation_token(
+                   user_id_param, params[:token])
     @user.confirm_email!
 
     sign_in(@user)
@@ -26,7 +48,7 @@ class Clearance::ConfirmationsController < ApplicationController
   private
 
   def redirect_signed_in_confirmed_user
-    user = ::User.find_by_id(params[:user_id])
+    user = user_model.find_by_id(user_id_param)
     if user && user.email_confirmed? && current_user == user
       flash_success_after_create
       redirect_to(url_after_create)
@@ -34,7 +56,7 @@ class Clearance::ConfirmationsController < ApplicationController
   end
 
   def redirect_signed_out_confirmed_user
-    user = ::User.find_by_id(params[:user_id])
+    user = user_model.find_by_id(user_id_param)
     if user && user.email_confirmed? && signed_out?
       flash_already_confirmed
       redirect_to(url_already_confirmed)
@@ -48,8 +70,8 @@ class Clearance::ConfirmationsController < ApplicationController
   end
 
   def forbid_non_existent_user
-    unless ::User.find_by_id_and_confirmation_token(
-                  params[:user_id], params[:token])
+    unless user_model.find_by_id_and_confirmation_token(
+                  user_id_param, params[:token])
       raise ActionController::Forbidden, "non-existent user"
     end
   end
